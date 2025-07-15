@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北浜キャリア営業シミュレーション</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 0;
+            min-height: 800px;
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            padding: 30px;
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+        
+        .parameter-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .parameter-group h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .parameter {
+            margin-bottom: 15px;
+        }
+        
+        .parameter label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .parameter input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .parameter input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .parameter-value {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+        
+        .table-container h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 12px 8px;
+            text-align: right;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        th {
+            background: #34495e;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .profit {
+            font-weight: bold;
+        }
+        
+        .profit.positive {
+            color: #27ae60;
+        }
+        
+        .profit.negative {
+            color: #e74c3c;
+        }
+        
+        .update-btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s ease;
+        }
+        
+        .update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .simulation-note {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 北浜キャリア営業シミュレーション</h1>
+            <p>障害者人材紹介事業の営業収益性分析ツール</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="parameter-group">
+                    <h3>🎯 営業活動設定</h3>
+                    <div class="parameter">
+                        <label for="companiesPerMonth">月の企業獲得数</label>
+                        <input type="number" id="companiesPerMonth" value="1" min="0" max="10" step="0.1">
+                        <div class="parameter-value">社/月</div>
+                    </div>
+                    <div class="parameter">
+                        <label for="introductionsPerCompany">1企業あたり月平均紹介数</label>
+                        <input type="number" id="introductionsPerCompany" value="0.33" min="0" max="5" step="0.1">
+                        <div class="parameter-value">人/月/企業</div>
+                    </div>
+                    <div class="parameter">
+                        <label for="monthlySalesCost">月額営業活動費</label>
+                        <input type="number" id="monthlySalesCost" value="30" min="0" max="200" step="5">
+                        <div class="parameter-value">万円/月</div>
+                    </div>
+                </div>
+                
+                <div class="parameter-group">
+                    <h3>💰 報酬設定</h3>
+                    <div class="parameter">
+                        <label for="feePerPerson">1人あたり成功報酬</label>
+                        <input type="number" id="feePerPerson" value="100" min="50" max="300" step="10">
+                        <div class="parameter-value">万円/人</div>
+                    </div>
+                    <div class="parameter">
+                        <label for="commissionRate1to4">営業報酬率（1-4人目）</label>
+                        <input type="number" id="commissionRate1to4" value="30" min="0" max="50" step="1">
+                        <div class="parameter-value">%</div>
+                    </div>
+                    <div class="parameter">
+                        <label for="commissionRate5plus">営業報酬率（5人目以降）</label>
+                        <input type="number" id="commissionRate5plus" value="15" min="0" max="30" step="1">
+                        <div class="parameter-value">%</div>
+                    </div>
+                </div>
+                
+                <button class="update-btn" onclick="updateSimulation()">🔄 シミュレーション更新</button>
+                
+                <div class="simulation-note">
+                    <strong>💡 シミュレーションについて</strong><br>
+                    • 24ヶ月間の営業活動を想定<br>
+                    • 企業ごとに紹介人数をカウント<br>
+                    • 営業報酬は企業別累計で計算<br>
+                    • 紹介発生は確率的にモデル化
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="totalRevenue">0</div>
+                        <div class="kpi-label">累計売上（万円）</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="totalExpenses">0</div>
+                        <div class="kpi-label">累計経費（万円）</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="totalProfit">0</div>
+                        <div class="kpi-label">累計利益（万円）</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="profitMargin">0</div>
+                        <div class="kpi-label">利益率（%）</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="totalCompanies">0</div>
+                        <div class="kpi-label">総企業数（社）</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="totalIntroductions">0</div>
+                        <div class="kpi-label">総紹介人数（人）</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>📈 月次推移グラフ</h3>
+                    <div style="height: 400px; position: relative;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h3>📋 月別詳細データ</h3>
+                    <table id="detailTable">
+                        <thead>
+                            <tr>
+                                <th>月</th>
+                                <th>累計企業数</th>
+                                <th>月間紹介数</th>
+                                <th>月間売上</th>
+                                <th>営業報酬</th>
+                                <th>営業活動費</th>
+                                <th>月間利益</th>
+                                <th>累計利益</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart = null;
+        let simulationData = [];
+
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString();
+        }
+
+        function calculateSimulation() {
+            const companiesPerMonth = parseFloat(document.getElementById('companiesPerMonth').value);
+            const introductionsPerCompany = parseFloat(document.getElementById('introductionsPerCompany').value);
+            const monthlySalesCost = parseFloat(document.getElementById('monthlySalesCost').value);
+            const feePerPerson = parseFloat(document.getElementById('feePerPerson').value);
+            const commissionRate1to4 = parseFloat(document.getElementById('commissionRate1to4').value) / 100;
+            const commissionRate5plus = parseFloat(document.getElementById('commissionRate5plus').value) / 100;
+
+            const months = 24;
+            let companies = []; // Array to track each company and their introduction count
+            let companyCounter = 0; // To give unique IDs to companies
+            let companyCounters = []; // Array to track months since last introduction for each company
+            let companyAdditionCounter = 0; // Counter for adding new companies
+            let monthlyData = [];
+            let cumulativeProfit = 0;
+
+            for (let month = 1; month <= months; month++) {
+                // Add new companies based on counter
+                companyAdditionCounter++;
+                const monthsPerCompany = 1 / companiesPerMonth; // 0.5 -> 2, 0.25 -> 4, 0.2 -> 5
+                
+                if (companyAdditionCounter >= monthsPerCompany) {
+                    companyCounter++;
+                    companies.push({ 
+                        id: `Company-${companyCounter}`,
+                        introductions: 0 
+                    });
+                    companyCounters.push(0); // Start counter at 0
+                    companyAdditionCounter = 0; // Reset counter
+                }
+
+                let monthlyIntroductions = 0;
+                let monthlyCommission = 0;
+
+                // Calculate introductions for each company based on counter
+                const monthsPerIntroduction = 1 / introductionsPerCompany; // 0.5 -> 2, 0.25 -> 4
+                
+                companies.forEach((company, index) => {
+                    // Increment counter for this company
+                    companyCounters[index]++;
+                    
+                    // Check if it's time for this company to introduce
+                    if (companyCounters[index] >= monthsPerIntroduction) {
+                        company.introductions += 1;
+                        monthlyIntroductions += 1;
+                        companyCounters[index] = 0; // Reset counter
+                        
+                        // Calculate commission based on company's total introduction count
+                        let commission;
+                        if (company.introductions <= 4) {
+                            commission = feePerPerson * commissionRate1to4;
+                        } else {
+                            commission = feePerPerson * commissionRate5plus;
+                        }
+                        monthlyCommission += commission;
+                        
+                        // Debug: Log commission calculation
+                        console.log(`Month ${month}: ${company.id} has ${company.introductions} total introductions, commission: ${commission}`);
+                    }
+                });
+
+                const monthlyRevenue = monthlyIntroductions * feePerPerson;
+                const monthlyExpenses = monthlyCommission + monthlySalesCost;
+                const monthlyProfit = monthlyRevenue - monthlyExpenses;
+                cumulativeProfit += monthlyProfit;
+
+                monthlyData.push({
+                    month: month,
+                    companies: companies.length,
+                    introductions: monthlyIntroductions,
+                    revenue: monthlyRevenue,
+                    commission: monthlyCommission,
+                    salesCost: monthlySalesCost,
+                    expenses: monthlyExpenses,
+                    profit: monthlyProfit,
+                    cumulativeProfit: cumulativeProfit
+                });
+            }
+
+            return monthlyData;
+        }
+
+        function updateKPIs(data) {
+            const totalRevenue = data.reduce((sum, month) => sum + month.revenue, 0);
+            const totalExpenses = data.reduce((sum, month) => sum + month.expenses, 0);
+            const totalProfit = totalRevenue - totalExpenses;
+            const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue * 100) : 0;
+            const totalCompanies = data[data.length - 1]?.companies || 0;
+            const totalIntroductions = data.reduce((sum, month) => sum + month.introductions, 0);
+
+            document.getElementById('totalRevenue').textContent = formatNumber(totalRevenue);
+            document.getElementById('totalExpenses').textContent = formatNumber(totalExpenses);
+            document.getElementById('totalProfit').textContent = formatNumber(totalProfit);
+            document.getElementById('profitMargin').textContent = formatNumber(profitMargin);
+            document.getElementById('totalCompanies').textContent = formatNumber(totalCompanies);
+            document.getElementById('totalIntroductions').textContent = formatNumber(totalIntroductions);
+
+            // Update profit color
+            const profitElement = document.getElementById('totalProfit');
+            profitElement.className = totalProfit >= 0 ? 'kpi-value positive' : 'kpi-value negative';
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => `${d.month}ヶ月目`),
+                    datasets: [{
+                        label: '月間売上',
+                        data: data.map(d => d.revenue),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }, {
+                        label: '月間経費',
+                        data: data.map(d => d.expenses),
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }, {
+                        label: '月間利益',
+                        data: data.map(d => d.profit),
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }, {
+                        label: '累計利益',
+                        data: data.map(d => d.cumulativeProfit),
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '金額（万円）'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '累計利益（万円）'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '24ヶ月間の営業成果推移'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable(data) {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(month => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${month.month}</td>
+                    <td>${formatNumber(month.companies)}</td>
+                    <td>${formatNumber(month.introductions)}</td>
+                    <td>${formatNumber(month.revenue)}</td>
+                    <td>${formatNumber(month.commission)}</td>
+                    <td>${formatNumber(month.salesCost)}</td>
+                    <td class="profit ${month.profit >= 0 ? 'positive' : 'negative'}">${formatNumber(month.profit)}</td>
+                    <td class="profit ${month.cumulativeProfit >= 0 ? 'positive' : 'negative'}">${formatNumber(month.cumulativeProfit)}</td>
+                `;
+            });
+        }
+
+        function updateSimulation() {
+            simulationData = calculateSimulation();
+            updateKPIs(simulationData);
+            updateChart(simulationData);
+            updateTable(simulationData);
+        }
+
+        // Initialize simulation
+        updateSimulation();
+
+        // Add event listeners for real-time updates
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateSimulation);
+        });
+    </script>
+</body>
+</html>
