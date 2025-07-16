@@ -19,6 +19,24 @@
             padding: 20px;
         }
         
+        @media (min-width: 768px) {
+            .mobile-br {
+            display: none;
+        }
+
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+        }
+                
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -41,6 +59,20 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+        }
+        
         .header p {
             font-size: 1.1rem;
             opacity: 0.9;
@@ -53,10 +85,56 @@
             min-height: 800px;
         }
         
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sidebar {
+                order: 2;
+                border-right: none;
+                border-top: 1px solid #e9ecef;
+            }
+            
+            .content {
+                order: 1;
+            }
+        }
+        
         .sidebar {
             background: #f8f9fa;
             padding: 30px;
             border-right: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                padding: 20px;
+            }
+            
+            .parameter-group {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .parameter-group h3 {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+            
+            .parameter {
+                margin-bottom: 12px;
+            }
+            
+            .parameter label {
+                font-size: 0.9rem;
+            }
+            
+            .parameter input {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
         }
         
         .content {
@@ -68,6 +146,25 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .kpi-card {
+                padding: 20px 15px;
+            }
+            
+            .kpi-value {
+                font-size: 1.5rem;
+            }
+            
+            .kpi-label {
+                font-size: 0.8rem;
+            }
         }
         
         .kpi-card {
@@ -102,6 +199,18 @@
             padding: 25px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .chart-container h3 {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
         }
         
         .chart-container h3 {
@@ -163,6 +272,25 @@
             padding: 25px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             overflow-x: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 15px;
+            }
+            
+            .table-container h3 {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+            }
         }
         
         .table-container h3 {
@@ -240,8 +368,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 北浜キャリア営業シミュレーション</h1>
-            <p>障害者人材紹介事業の営業収益性分析ツール</p>
+            <h1>📊 北浜キャリア<br class="mobile-br">営業シミュレーション</h1>
+            <p>障がい者人材紹介事業<br class="mobile-br">営業収益性分析ツール</p>
         </div>
         
         <div class="main-content">
@@ -299,15 +427,15 @@
                 <div class="kpi-grid">
                     <div class="kpi-card">
                         <div class="kpi-value" id="totalRevenue">0</div>
-                        <div class="kpi-label">累計売上（万円）</div>
+                        <div class="kpi-label">累計売上<br class="mobile-br">（万円）</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="totalExpenses">0</div>
-                        <div class="kpi-label">累計経費（万円）</div>
+                        <div class="kpi-label">累計経費<br class="mobile-br">（万円）</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="totalProfit">0</div>
-                        <div class="kpi-label">累計利益（万円）</div>
+                        <div class="kpi-label">累計利益<br class="mobile-br">（万円）</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="profitMargin">0</div>
@@ -319,7 +447,7 @@
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="totalIntroductions">0</div>
-                        <div class="kpi-label">総紹介人数（人）</div>
+                        <div class="kpi-label">総紹介人数<br class="mobile-br">（人）</div>
                     </div>
                 </div>
                 
